@@ -1,7 +1,5 @@
-export const API_KEY = 'f5ff95d96451a8d833c575d00a7fccc9'; 
-export const BASE_URL = 'https://api.openweathermap.org/data/2.5';
-
-
+export const API_KEY = import.meta.env.VITE_API_KEY; 
+export const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const WEATHER_ICONS = {
   '01d': 'clear-day',
