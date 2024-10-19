@@ -46,6 +46,6 @@ A modern weather dashboard application built with **React** and **Redux**, allow
 5. **Start the development server**.
    ```bash
    npm run dev
-
-6. **Open the app in your browser **.
+   
+6. **Open the app in your browser**.
  
