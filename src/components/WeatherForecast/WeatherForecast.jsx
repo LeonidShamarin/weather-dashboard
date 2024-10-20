@@ -1,9 +1,16 @@
 import { useSelector } from "react-redux";
+import LoadingSpinner from "./../LoadingSpinner/LoadingSpinner";
 
 const WeatherForecast = () => {
   const { forecast, loading, error } = useSelector((state) => state.weather);
 
-  if (loading) return <p>Loading forecast...</p>;
+  if (loading)
+    return (
+      <>
+        <p>Loading forecast...</p>
+        <LoadingSpinner />
+      </>
+    );
   if (error) return <p className="text-red-500">Error: {error}</p>;
   if (!forecast) return null;
 
