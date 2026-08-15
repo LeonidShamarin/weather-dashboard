@@ -1,20 +1,39 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWeatherByCity, fetchForecastByCity } from '../../services/weatherApi';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  fetchWeatherByCity,
+  fetchForecastByCity,
+  fetchWeatherByCoords,
+  fetchForecastByCoords,
+} from "../../services/weatherApi";
 
+/**
+ * Accepts either a city name, or `{ city }` / `{ lat, lon }` with optional
+ * `units`. The plain-string form is kept because that is how the rest of the
+ * app and the tests call it.
+ */
 export const fetchWeatherData = createAsyncThunk(
-  'weather/fetchWeatherData',
-  async (city) => {
-    const weatherData = await fetchWeatherByCity(city);
-    const forecastData = await fetchForecastByCity(city);
-    return {
-      currentWeather: weatherData,
-      forecast: forecastData
-    };
+  "weather/fetchWeatherData",
+  async (arg) => {
+    const query = typeof arg === "string" ? { city: arg } : arg || {};
+    const units = query.units || "metric";
+
+    if (query.lat != null && query.lon != null) {
+      const [currentWeather, forecast] = await Promise.all([
+        fetchWeatherByCoords(query.lat, query.lon, units),
+        fetchForecastByCoords(query.lat, query.lon, units),
+      ]);
+      return { currentWeather, forecast };
+    }
+
+    // Sequential in the original; the two calls do not depend on each other.
+    const currentWeather = await fetchWeatherByCity(query.city, units);
+    const forecast = await fetchForecastByCity(query.city, units);
+    return { currentWeather, forecast };
   }
 );
 
 const weatherSlice = createSlice({
-  name: 'weather',
+  name: "weather",
   initialState: {
     currentWeather: null,
     forecast: null,

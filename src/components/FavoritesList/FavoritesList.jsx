@@ -1,58 +1,97 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { removeFromFavorites } from '../../redux/slices/favoritesSlice';
-import { fetchWeatherData } from '../../redux/slices/weatherSlice';
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
-const FavoritesList = () => {
+import { removeFromFavorites } from "../../redux/slices/favoritesSlice";
+import { fetchWeatherByCity } from "../../services/weatherApi";
+import WeatherIcon from "../WeatherIcon/WeatherIcon";
+import { formatTemperature } from "../../utils/helpers";
+
+const FavoritesList = ({ onSelect }) => {
   const dispatch = useDispatch();
   const favorites = useSelector((state) => state.favorites);
+  const units = useSelector((state) => state.units);
+  const [live, setLive] = useState({});
 
-  const handleRemove = (cityId) => {
-    dispatch(removeFromFavorites(cityId));
-  };
+  // Favourites used to display the temperature captured when the city was
+  // added and never changed it. Their current weather is fetched here, once
+  // per list or unit change.
+  useEffect(() => {
+    let cancelled = false;
+    if (favorites.length === 0) {
+      setLive({});
+      return undefined;
+    }
 
-  const handleRefresh = (cityName) => {
-    dispatch(fetchWeatherData(cityName));
-  };
+    Promise.all(
+      favorites.map((city) =>
+        fetchWeatherByCity(city.name, units)
+          .then((data) => [city.id, data])
+          .catch(() => [city.id, null])
+      )
+    ).then((entries) => {
+      if (!cancelled) setLive(Object.fromEntries(entries));
+    });
 
-  if (favorites.length === 0) {
-    return (
-      <div className="mt-4 text-center text-gray-500">
-        No favorite cities added yet
-      </div>
-    );
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [favorites, units]);
+
+  if (favorites.length === 0) return null;
 
   return (
-    <div className="mt-4">
-      <h2 className="text-xl font-bold mb-2">Favorite Cities</h2>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {favorites.map((city) => (
-          <div key={city.id} className="bg-white p-4 rounded-lg shadow">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold">{city.name}</h3>
-                <p className="text-2xl">{Math.round(city.main.temp)}°C</p>
-                <p className="text-sm">{city.weather[0].description}</p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => handleRefresh(city.name)}
-                  className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  🔄
-                </button>
-                <button
-                  onClick={() => handleRemove(city.id)}
-                  className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  ✕
-                </button>
-              </div>
+    <section className="mt-8">
+      <h2 className="mb-3 text-lg font-semibold">Favorites</h2>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {favorites.map((city) => {
+          const weather = live[city.id];
+          return (
+            <div
+              key={city.id}
+              className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 p-3 backdrop-blur transition hover:bg-white/20"
+            >
+              <button
+                type="button"
+                onClick={() => onSelect(city.name)}
+                className="flex flex-1 items-center gap-3 text-left"
+              >
+                {weather ? (
+                  <WeatherIcon
+                    code={weather.weather[0].icon}
+                    className="h-10 w-10"
+                  />
+                ) : (
+                  <span className="h-10 w-10 animate-pulse rounded-full bg-white/20" />
+                )}
+                <span className="min-w-0">
+                  <span className="block truncate font-medium">
+                    {city.name}
+                    {city.country && (
+                      <span className="ml-1 text-white/60">{city.country}</span>
+                    )}
+                  </span>
+                  <span className="block text-sm text-white/75">
+                    {weather
+                      ? `${formatTemperature(weather.main.temp, units)} · ${weather.weather[0].description}`
+                      : "Loading…"}
+                  </span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => dispatch(removeFromFavorites(city.id))}
+                aria-label={`Remove ${city.name} from favorites`}
+                className="rounded-lg p-1.5 text-white/70 transition hover:bg-white/20 hover:text-white"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </div>
+    </section>
   );
 };
 

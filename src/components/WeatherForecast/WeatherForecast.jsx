@@ -1,69 +1,41 @@
 import { useSelector } from "react-redux";
-import LoadingSpinner from "./../LoadingSpinner/LoadingSpinner";
+import WeatherIcon from "../WeatherIcon/WeatherIcon";
+import { formatTemperature, summariseDays } from "../../utils/helpers";
 
 const WeatherForecast = () => {
-  const { forecast, loading, error } = useSelector((state) => state.weather);
+  const { forecast } = useSelector((state) => state.weather);
+  const units = useSelector((state) => state.units);
 
-  if (loading)
-    return (
-      <>
-        <p>Loading forecast...</p>
-        <LoadingSpinner />
-      </>
-    );
-  if (error) return <p className="text-red-500">Error: {error}</p>;
-  if (!forecast) return null;
-
-  const groupByDay = (list) => {
-    return list.reduce((days, item) => {
-      const date = new Date(item.dt * 1000).toLocaleDateString();
-      if (!days[date]) {
-        days[date] = [];
-      }
-      days[date].push(item);
-      return days;
-    }, {});
-  };
-
-  const getDayData = (dayForecasts) => {
-    const temps = dayForecasts.map((f) => f.main.temp);
-    return {
-      date: new Date(dayForecasts[0].dt * 1000).toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      }),
-      temp: Math.round(temps.reduce((a, b) => a + b) / temps.length),
-      icon: dayForecasts[0].weather[0].icon,
-      description: dayForecasts[0].weather[0].description,
-    };
-  };
-
-  const dailyData = Object.values(groupByDay(forecast.list))
-    .map(getDayData)
-    .slice(0, 5);
+  if (!forecast?.list?.length) return null;
+  const days = summariseDays(forecast.list, 5);
 
   return (
-    <div className="mt-6">
-      <h2 className="text-xl font-bold mb-4">5-Day Forecast</h2>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        {dailyData.map((day, index) => (
+    <section className="mt-8">
+      <h2 className="mb-3 text-lg font-semibold">5-day forecast</h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {days.map((day) => (
           <div
-            key={index}
-            className="bg-white p-4 rounded-lg shadow text-center"
+            key={day.dt}
+            className="rounded-xl border border-white/15 bg-white/10 p-4 text-center backdrop-blur"
           >
-            <div className="font-bold">{day.date}</div>
-            <img
-              src={`http://openweathermap.org/img/wn/${day.icon}@2x.png`}
-              alt={day.description}
-              className="mx-auto"
-            />
-            <div className="text-xl font-bold">{day.temp}°C</div>
-            <div className="text-sm text-gray-600">{day.description}</div>
+            <div className="text-sm font-medium">{day.date}</div>
+            <WeatherIcon code={day.icon} className="mx-auto h-14 w-14" />
+            {/* Real min and max for the day, not the average of every slot. */}
+            <div className="flex items-baseline justify-center gap-2">
+              <span className="text-xl font-semibold">
+                {formatTemperature(day.max, units)}
+              </span>
+              <span className="text-sm text-white/70">
+                {formatTemperature(day.min, units)}
+              </span>
+            </div>
+            <div className="mt-1 text-xs capitalize text-white/75">
+              {day.description}
+            </div>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 
