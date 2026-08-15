@@ -6,17 +6,22 @@ export const UNITS = {
   imperial: { id: "imperial", label: "°F", temp: "°F", speed: "mph" },
 };
 
+/**
+ * Tints laid over the backdrop photo, not solid backgrounds: the alpha keeps
+ * the picture visible while the colour still says what the weather is doing,
+ * and holds enough contrast for white text.
+ */
 const SKY_GRADIENTS = {
-  clearDay: "from-sky-400 via-sky-500 to-blue-600",
-  night: "from-slate-800 via-slate-900 to-slate-950",
-  clouds: "from-slate-400 via-slate-500 to-slate-700",
-  rain: "from-slate-500 via-slate-600 to-slate-800",
-  thunderstorm: "from-indigo-800 via-slate-800 to-slate-900",
-  snow: "from-sky-200 via-slate-300 to-slate-500",
-  atmosphere: "from-stone-400 via-stone-500 to-stone-600",
+  clearDay: "from-sky-500/70 via-sky-600/60 to-blue-800/80",
+  night: "from-slate-900/85 via-slate-900/75 to-black/90",
+  clouds: "from-slate-500/75 via-slate-600/70 to-slate-800/85",
+  rain: "from-slate-600/80 via-slate-700/75 to-slate-900/85",
+  thunderstorm: "from-indigo-900/80 via-slate-800/80 to-slate-950/90",
+  snow: "from-sky-300/70 via-slate-400/70 to-slate-600/85",
+  atmosphere: "from-stone-500/75 via-stone-600/70 to-stone-800/85",
 };
 
-/** Background for the page, chosen from OpenWeather's icon code. */
+/** Tint for the page, chosen from OpenWeather's icon code. */
 export function skyGradient(iconCode = "01d") {
   const isNight = iconCode.endsWith("n");
   const group = iconCode.slice(0, 2);

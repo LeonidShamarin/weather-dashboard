@@ -23,7 +23,9 @@ React 18 with Redux Toolkit, Tailwind, Vite and the OpenWeather API.
 - **Favorites** kept in `localStorage`, each showing its current temperature.
 - **°C / °F**, remembered between visits; the switch refetches so wind changes
   from m/s to mph with it.
-- The page background follows the weather and the time of day.
+- **A photo backdrop** — one 193 KB JPEG for every condition, with a weather
+  tint over it, so the colour still follows the weather and the time of day
+  without shipping a picture per forecast.
 
 ---
 
