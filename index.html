@@ -23,6 +23,23 @@
       content="https://weather-dashboard-shamarin.vercel.app/"
     />
     <meta name="twitter:card" content="summary" />
+      <!-- Link previews (LinkedIn, Telegram, Slack, X). The crawler fetches the
+         image from its own server, so these URLs have to be absolute: a
+         root-relative path gives it no host and the card renders with no image. -->
+    <link rel="canonical" href="https://weather-dashboard-shamarin.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Leonid Shamarin" />
+    <meta property="og:url" content="https://weather-dashboard-shamarin.vercel.app/" />
+    <meta property="og:title" content="Weather Dashboard" />
+    <meta property="og:description" content="Current weather and forecast by geolocation or by search, in metric or imperial units." />
+    <meta property="og:image" content="https://weather-dashboard-shamarin.vercel.app/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Weather Dashboard" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Weather Dashboard" />
+    <meta name="twitter:description" content="Current weather and forecast by geolocation or by search, in metric or imperial units." />
+    <meta name="twitter:image" content="https://weather-dashboard-shamarin.vercel.app/og-card.png" />
   </head>
   <body>
     <div id="root"></div>
